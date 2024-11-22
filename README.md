@@ -5,7 +5,7 @@
 ### Clone repositories
 
 ```
-git clone https://github.com/Tomas-Weber1994/Hackathon-Game.git
+git clone https://github.com/Ctrl-Alt-Del-Debt/Hackathon-Game.git
 cd Hackathon-Game
 ```
 
