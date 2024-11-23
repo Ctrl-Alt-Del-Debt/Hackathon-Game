@@ -1,13 +1,19 @@
+from app.salaries_data_preprocessing import MzdyData
+from src.constants.data_constants import FILE_PATH_SALARIES, STARTING_YEAR, CAREERS_LIST, STUDENT_INCOME, STARTING_AGE
+
 from typing import Dict
 import yfinance as yf
 import pandas as pd
 
 
 class Player:
-    def __init__(self, name: str, age: int, career: str):
+    def __init__(self, name: str, age: int, career: str, region = "Jihomoravský kraj"):
         self.name = name
         self.age = age
+        self.current_year = STARTING_YEAR + (self.age - STARTING_AGE)
         self.career = career
+        self.region = region  # default region is JMK but can be changed to "Hlavní město Praha"
+        self.income_data = MzdyData(FILE_PATH_SALARIES).process_adjustments()
 
         # Financial attributes
         self.cash = 10000.0
@@ -16,6 +22,7 @@ class Player:
         self.real_estate_value = 0.0
         self.monthly_income = self._initialize_income()
         self.monthly_expenses = 2000.0  # TODO: Use real data based on inflation
+        #self.monthly_expenses = self._compute_monthly_expenses()
 
         # Historical data
         self.salary_history = [self.monthly_income]
@@ -27,16 +34,31 @@ class Player:
         self.health = 100
         self.education = 50
         self.months = 0  # Initialize month counter
+    
+    def _compute_monthly_expenses(self) -> int:
+        pass
 
-    # TODO: use real data, make it more realistic... enterpreneur should have more variable income, even negative. Employee should be based on type of job
-    def _initialize_income(self) -> float:
-        if self.career == "Student":
-            return 1500.0
-        elif self.career == "Employee":
-            return 4000.0
-        else:  # Entrepreneur
-            return 3000.0
-
+    
+    # TODO: hardcoded start in 20 year -> should be changed
+    def _initialize_income(self) -> int:
+        """
+        Initialize income based on age, career, and data from the income data.
+        Calculate the year which should be used based on age:
+            e.g. age 20 --> 2006 / age 21 --> 2007
+        """
+        try:
+            if self.career in CAREERS_LIST:
+                income_data_filtered = self.income_data[
+                    (self.income_data['Rok'] == str(self.current_year)) &
+                    (self.income_data['ČR, kraje'] == self.region)
+                ]
+                income = income_data_filtered[self.career].iloc[0].item()
+                return int(income)
+            elif self.career == "Student":
+                return int(STUDENT_INCOME)
+        except:
+            print("Something went wrong during an income settings.")        # TODO: logging should be implemented instead printing
+        
     @property
     def net_worth(self) -> float:
         return self.cash + self.investments_value + self.real_estate_value

@@ -3,6 +3,7 @@ import pandas as pd
 import yfinance as yf
 from src.app.game_engine import GameEngine
 from src.app.player import Player
+from src.constants.data_constants import CAREERS_LIST
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 
@@ -35,7 +36,8 @@ def show_start_screen():
     with st.form("player_creation"):
         name = st.text_input("Your Name")
         age = st.slider("Starting Age", 12, 50, 20)
-        career = st.selectbox("Initial Career", ["Student", "Employee", "Entrepreneur"])
+        CAREERS_LIST.append("Student")
+        career = st.selectbox("Initial Career", CAREERS_LIST)
 
         if st.form_submit_button("Start Your Journey"):
             st.session_state.player = Player(name, age, career)
