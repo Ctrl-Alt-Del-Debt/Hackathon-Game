@@ -1,4 +1,6 @@
 import pandas as pd
+import random
+#prostor na import constant pro filenames a variables
 
 #formátování zobrazení pandas
 pd.options.display.float_format = '{:.2f}'.format
@@ -29,6 +31,8 @@ def extend_values(csv_file_name: str, years_to_extend: int, drop_rate: float, ra
     df = df.sort_values("Year").reset_index(drop = True)#seřazení dat
     df["Growth"] = df["Close"].pct_change() * 100       #sloupec na % změnu
     avg_growth = df["Growth"].mean()                    #průměrný růst
+    avg_growth_low = avg_growth * 0.2
+    avg_growth_high = avg_growth * 1.1
     last_year = df["Year"].iloc[-1]                     #poslední rok
     last_close = df["Close"].iloc[-1]                   #poslední close hodnota
     new_years = []                                      #list na nové roky
@@ -36,7 +40,8 @@ def extend_values(csv_file_name: str, years_to_extend: int, drop_rate: float, ra
 
     for i in range(1, years_to_extend):
         next_year = last_year + i                                   #jaký rok počítá
-        next_close = last_close * (1 + (avg_growth/i)/100)          #jaká je nová hodnota + dělení počtem iterací na srovnání křivky růstu
+        next_close = last_close * (1 + (random.uniform(avg_growth_low, avg_growth_high))/100)          
+        #jaká je nová hodnota způsobená průměrným růstem (s random prvekm)
         if i % rate_freq == 0:
             next_close = last_close - (last_close * drop_rate)      #cena padne o x% jednou za x let
         new_years.append(next_year)                                 #nový rok do listu
@@ -66,8 +71,8 @@ def set_initial_year(df: pd.DataFrame, init_year: int) -> pd.DataFrame:
     df["Year"] = df["Year"] - min_year + init_year
     return df
 
-spx_data = set_initial_year(add_perc_change(process_csv("SPX.csv")), 2006)
-btc_data = set_initial_year(add_perc_change(extend_values("BTC-USD.csv", 80, 0.15, 8)), 2006)
-us_gen_bonds_data = set_initial_year(add_perc_change(extend_values("US_Gen_TR.csv", 50, 0.025, 15)), 2006)
-em_gen_bonds_data = set_initial_year(add_perc_change(extend_values("EM_Gen_TR.csv", 70, 0.05, 25)), 2006)
-emea_gen_bonds_data = set_initial_year(add_perc_change(extend_values("EMEA_Gen_TR.csv", 70, 0.05, 25)), 2006)
+spx_data = set_initial_year(add_perc_change(process_csv("data/SPX.csv")), 2006)
+btc_data = set_initial_year(add_perc_change(extend_values("data/BTC-USD.csv", 80, 0.4, 2)), 2006)
+us_gen_bonds_data = set_initial_year(add_perc_change(extend_values("data/US_Gen_TR.csv", 50, 0.05, 15)), 2006)
+em_gen_bonds_data = set_initial_year(add_perc_change(extend_values("data/EM_Gen_TR.csv", 70, 0.05, 25)), 2006)
+emea_gen_bonds_data = set_initial_year(add_perc_change(extend_values("data/EMEA_Gen_TR.csv", 70, 0.05, 25)), 2006)
