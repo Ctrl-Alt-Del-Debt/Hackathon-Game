@@ -178,19 +178,21 @@ def show_game_ui(player: Player):
             st.markdown(event_card(-1000, "Break a leg"), unsafe_allow_html=True)
             st.markdown(event_card(500, "Got a bonus"), unsafe_allow_html=True)
             st.markdown(event_card(-200, "Car repair"), unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
         with controls_col:
-            st.markdown('<div class="tile">', unsafe_allow_html=True)
-            st.markdown("<h3>Controls</h3>", unsafe_allow_html=True)
-            months = st.selectbox("Advance Months", [1, 2, 3, 4, 6, 8, 12])
-            if st.button("Next Month"):
-                player.advance_month()
-                st.rerun()
-            st.selectbox("Choose Event", ["Buy house", "Get dog", "Start business"])
-            st.markdown('</div>', unsafe_allow_html=True)
+            advance_col, months_col = st.columns([2, 2])
+            with months_col:
+                months_to_advance = st.selectbox(
+                    "Months:", [1, 2, 3, 4, 6, 8, 12, 24, 48], 1
+                )
+            with advance_col:
+                if st.button("Next Month"):
+                    for _ in range(months_to_advance):
+                        player.advance_month()
+                    st.rerun()
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # Footer
     st.markdown(footer(), unsafe_allow_html=True)
