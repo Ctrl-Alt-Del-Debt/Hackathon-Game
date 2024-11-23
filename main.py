@@ -184,11 +184,14 @@ def show_events(engine, player):
     for event in player.events:
         if event is None:
             continue
+        st.info(event.title, icon="🚨")
         st.info(event.description)
         for option in event.options:
-            if st.button(option.description):
-                option.execute(player)
-                st.rerun()
+            if option.requirements is None or not option.requirements(player):
+                if st.button(option.description):
+                    option.execute(player)
+                    st.rerun()
+        player.events = []
 
 
 def show_actions(player):
