@@ -153,6 +153,8 @@ def show_game_screen():
                     player.advance_month(engine)
                 st.rerun()
 
+        show_actions(player)
+
 
 def stats_card(title, stats):
     st.markdown(
@@ -195,16 +197,14 @@ def show_events(engine, player):
 
 
 def show_actions(player):
-    col1, col2 = st.columns(2)
 
-    with col1:
-        if st.button("Invest"):
-            amount = st.number_input(
-                "Investment amount:", min_value=0.0, max_value=player.cash
-            )
-            if st.button("Confirm Investment"):
-                player.invest(amount)
-                st.rerun()
+    if st.button("Invest"):
+        amount = st.number_input(
+            "Investment amount:", min_value=0.0, max_value=player.cash
+        )
+        if st.button("Confirm Investment"):
+            player.invest(amount)
+            st.rerun()
 
 
 if __name__ == "__main__":
