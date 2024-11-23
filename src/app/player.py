@@ -30,7 +30,8 @@ class Player:
         self.months = 0  # Initialize month counter
         self.is_married = False
         self.childern = 0
-        self.property = []
+        self.property = [Property]
+    
 
 
     # TODO: use real data, make it more realistic... enterpreneur should have more variable income, even negative. Employee should be based on type of job
@@ -94,10 +95,14 @@ class Player:
             monthly_return = 0.007  # About 8.4% annually
             self.investments_value *= 1 + monthly_return
 
-    def buy_a_house(self, property: Property):
-        if self.cash >= 5000000:
-            print('you have enough money to build a house.')
-            self.cash -= 5000000
+    def buy_a_property(self, property: Property):
+        if self.cash >= property.price:
+            print('you have enough money to buy a property.')
+            self.cash -= property.price
             self.property.append(property)
         else:
             raise Exception("Not enough money.")
+    
+    def child_born(self):
+        self.childern += 1
+    
