@@ -16,7 +16,7 @@ cd Hackathon-Game
 ```bash
 python3 -m venv env
 source env/bin/activate
-python3 -m pip install -r requirements.txt
+python3 -m pip install -e .
 ```
 
 ##### Windows Powershell:
@@ -24,7 +24,7 @@ python3 -m pip install -r requirements.txt
 ```powershell
 python -m venv env
 .\env\Scripts\activate
-python -m pip install -r requirements.txt
+python -m pip install -e .
 ```
 
 ### VS Code settings
@@ -32,4 +32,11 @@ python -m pip install -r requirements.txt
 For getting rid of the import errors, it might be needed to implement following into settings.json (assuming working in VS Code)
 ```powershell
 "terminal.integrated.env.windows": {"PYTHONPATH": "${workspaceFolder}"}
+```
+
+
+### How to run
+
+```
+python -m streamlit run main.py
 ```

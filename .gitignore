@@ -4,3 +4,5 @@
 env/
 venv/
 ENV/
+**/__pycache__/
+finapp.egg-info/
