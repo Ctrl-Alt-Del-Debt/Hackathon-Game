@@ -12,4 +12,5 @@ HEADER_NAMES_SALARIES = [
             "Pomocní a nekvalifikovaní pracovníci"
         ]
 
-EXCEL_FILE_NAME_SALARIES = "data/mzdy_2021_2023.xlsx" 
+FILE_PATH_SALARIES = "data/mzdy_2021_2023.xlsx" 
+FILE_PATH_INFLATION = "data/Inflace_2000-23.xlsx" 

@@ -1,5 +1,5 @@
 import pandas as pd
-from src.constants.constants_salaries_data import HEADER_NAMES_SALARIES, EXCEL_FILE_NAME_SALARIES
+from src.constants.data_constants import HEADER_NAMES_SALARIES, FILE_PATH_SALARIES
 
 class MzdyData:
     def __init__(self, excel_file) -> None:
@@ -51,5 +51,5 @@ class MzdyData:
         return final_df
 
 if __name__ == "__main__":
-    mzdy_data = MzdyData(EXCEL_FILE_NAME_SALARIES)
+    mzdy_data = MzdyData(FILE_PATH_SALARIES)
     final_df = mzdy_data.process_adjustments()
