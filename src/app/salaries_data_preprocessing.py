@@ -19,13 +19,15 @@ class MzdyData:
         """
         return pd.read_excel(self.excel_file, sheet_name=None, header=None)
     
-    def _replace_star_with_null(self, df: pd.DataFrame) -> pd.DataFrame:
+    def _replace_special_chars(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Nahradí '*' hodnoty v daném DataFrame za NULL (NaN).
+        Nahradí hodnoty v daném DataFrame
         :param df: DataFrame, na kterém má být operace provedena
         :return: Upravený DataFrame
         """
-        return df.replace('*', pd.NA)
+        df = df.replace('*', pd.NA)
+        df = df.replace(r'[()]', '', regex=True)
+        return df
     
     def _combine_dataframes(self) -> pd.DataFrame:
         """
@@ -47,9 +49,10 @@ class MzdyData:
             df['Rok'] = year
             self.dataframes[sheet_name] = df 
         combined_df = self._combine_dataframes()
-        final_df = self._replace_star_with_null(combined_df)
+        final_df = self._replace_special_chars(combined_df)
         return final_df
 
 if __name__ == "__main__":
     mzdy_data = MzdyData(FILE_PATH_SALARIES)
     final_df = mzdy_data.process_adjustments()
+    final_df.to_excel("data/mzdy_2021_2023_upraveno.xlsx", index = False)
