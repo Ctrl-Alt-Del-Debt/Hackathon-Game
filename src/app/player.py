@@ -1,5 +1,9 @@
 from app.salaries_data_preprocessing import MzdyData
-from src.constants.data_constants import FILE_PATH_SALARIES, STARTING_YEAR, CAREERS_LIST, STUDENT_INCOME, STARTING_AGE
+from src.constants.data_constants import (
+    FILE_PATH_SALARIES, STARTING_YEAR, CAREERS_LIST, 
+    STUDENT_INCOME, STARTING_AGE, FILE_PATH_INFLATION,
+    STARTING_RENT, STARTING_ADDITIONAL_EXPENSES
+    )
 
 from typing import Dict
 import yfinance as yf
@@ -21,8 +25,8 @@ class Player:
         self.investments_value = 0.0
         self.real_estate_value = 0.0
         self.monthly_income = self._initialize_income()
-        self.monthly_expenses = 2000.0  # TODO: Use real data based on inflation
-        #self.monthly_expenses = self._compute_monthly_expenses()
+        self.additional_expenses = self._compute_additional_expenses()
+        self.monthly_rent_expenses = self._compute_monthly_rent_expenses()
 
         # Historical data
         self.salary_history = [self.monthly_income]
@@ -34,10 +38,24 @@ class Player:
         self.health = 100
         self.education = 50
         self.months = 0  # Initialize month counter
-    
-    def _compute_monthly_expenses(self) -> int:
-        pass
 
+    def _compute_monthly_rent_expenses(self) -> float:
+        if self.current_year == STARTING_YEAR:
+            return STARTING_RENT
+        else:
+            inflation_data = pd.read_excel(FILE_PATH_INFLATION)
+            inflation_data_filtered = inflation_data[inflation_data['Rok'] == self.current_year]
+            inflation_rate = inflation_data_filtered['Bydlení, voda, energie,\npaliva'].iloc[0].item()
+            return self.monthly_rent_expenses + (self.monthly_rent_expenses * inflation_rate)
+
+    def _compute_additional_expenses(self) -> float:
+        if self.current_year == STARTING_YEAR:
+            return STARTING_ADDITIONAL_EXPENSES
+        else:
+            inflation_data = pd.read_excel(FILE_PATH_INFLATION)
+            inflation_data_filtered = inflation_data[inflation_data['Rok'] == self.current_year]
+            inflation_rate = inflation_data_filtered['Úhrn'].iloc[0].item()
+            return self.additional_expenses + (self.additional_expenses * inflation_rate)
     
     # TODO: hardcoded start in 20 year -> should be changed
     def _initialize_income(self) -> int:
@@ -88,7 +106,7 @@ class Player:
         self.earn_money(self.monthly_income)
 
         # Monthly expenses
-        self.spend_money(self.monthly_expenses, "living_expenses")
+        self.spend_money(self.additional_expenses + self.monthly_rent_expenses, "living_expenses")
 
         # Age one month
         self.months += 1
