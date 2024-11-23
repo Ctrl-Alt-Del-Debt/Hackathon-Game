@@ -1,7 +1,11 @@
 import streamlit as st
 
+from ...app.player import Player
+
+
 def show_landing():
-    st.markdown("""
+    st.markdown(
+        """
         <style>
             .landing-container {
                 display: flex;
@@ -75,8 +79,15 @@ def show_landing():
                 window.location.href = "?page=simulation";
             }
         </script>
-    """, unsafe_allow_html=True)
-    
-    if st.button("Start Your Journey", key="start_button", type="primary"):
-        st.session_state.page = "simulation"
-        st.rerun()
+    """,
+        unsafe_allow_html=True,
+    )
+    with st.form("player_creation"):
+        name = st.text_input("Your Name")
+        age = st.slider("Starting Age", 18, 30, 20)
+        career = st.selectbox("Initial Career", ["Student", "Employee", "Entrepreneur"])
+
+        if st.form_submit_button("Start Your Journey"):
+            st.session_state.page = "simulation"
+            st.session_state.player = Player(name, age, career)
+            st.rerun()

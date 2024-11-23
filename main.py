@@ -15,7 +15,6 @@ if "player" not in st.session_state:
     st.session_state.player = None
 
 
-
 # def main():
 #     st.title("Financial Life Simulator 💰")
 
@@ -26,14 +25,17 @@ if "player" not in st.session_state:
 
 
 def main():
-    if 'page' not in st.session_state:
+    if "page" not in st.session_state:
         st.session_state.page = "landing"
-    
-# Show appropriate page
+
+    player = st.session_state.player
+    engine = st.session_state.game_engine
+
+    # Show appropriate page
     if st.session_state.page == "landing":
         show_landing()
     else:
-        show_game_ui()
+        show_game_ui(player)
 
 
 def show_start_screen():
@@ -43,15 +45,6 @@ def show_start_screen():
     Make smart financial decisions and build your wealth!
     """
     )
-
-    with st.form("player_creation"):
-        name = st.text_input("Your Name")
-        age = st.slider("Starting Age", 18, 30, 20)
-        career = st.selectbox("Initial Career", ["Student", "Employee", "Entrepreneur"])
-
-        if st.form_submit_button("Start Your Journey"):
-            st.session_state.player = Player(name, age, career)
-            st.rerun()
 
 
 def show_game_screen():

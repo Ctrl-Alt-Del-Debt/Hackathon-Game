@@ -1,20 +1,23 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
+from ..app.player import Player
 from src.frontend.components import (
     create_line_chart,
     create_pie_chart,
     stats_card,
     event_card,
     header,
-    footer
+    footer,
 )
 
 # Set the page configuration before anything else
 st.set_page_config(page_title="Financial Life Simulator", layout="wide")
 
+
 def inject_custom_css():
-    st.markdown("""
+    st.markdown(
+        """
         <style>
             .tile {
                 background: white;
@@ -105,51 +108,58 @@ def inject_custom_css():
                 border-top: 1px solid #e1e1e1;
             }
         </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
-def show_game_ui():
+
+def show_game_ui(player: Player):
     inject_custom_css()
-    
+
     # Header
     st.markdown(header(), unsafe_allow_html=True)
-    
+
     with st.container():
         # Main container
         st.markdown('<div class="main-container">', unsafe_allow_html=True)
-        
+
         # Sample data
-        financial_data = pd.DataFrame({
-            "date": pd.date_range(start="2024-01-01", periods=6, freq="M"),
-            "value": [4000, 3800, 4200, 3900, 4100, 4300],
-        })
-        
+        financial_data = pd.DataFrame(
+            {
+                "date": pd.date_range(start="2024-01-01", periods=6, freq="M"),
+                "value": [4000, 3800, 4200, 3900, 4100, 4300],
+            }
+        )
+
         portfolio_data = {
             "labels": ["Savings", "Investments", "Real Estate"],
             "values": [40, 35, 25],
         }
-        
+
         # Top section - Charts and Stats
         col1, col2, col3, stats_col = st.columns([1, 1, 1, 1])
-        
+
         with col1:
             st.markdown('<div class="tile">', unsafe_allow_html=True)
             st.plotly_chart(create_line_chart(financial_data), use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-            
+            st.markdown("</div>", unsafe_allow_html=True)
+
         with col2:
             st.markdown('<div class="tile">', unsafe_allow_html=True)
             st.plotly_chart(create_pie_chart(portfolio_data), use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-            
+            st.markdown("</div>", unsafe_allow_html=True)
+
         with col3:
             st.markdown('<div class="tile">', unsafe_allow_html=True)
             placeholder_data = {
                 "labels": ["Category A", "Category B", "Category C"],
                 "values": [33, 33, 34],
             }
-            st.plotly_chart(create_pie_chart(placeholder_data), use_container_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-            
+            st.plotly_chart(
+                create_pie_chart(placeholder_data), use_container_width=True
+            )
+            st.markdown("</div>", unsafe_allow_html=True)
+
         with stats_col:
             stats = {
                 "Age": "25",
@@ -161,23 +171,26 @@ def show_game_ui():
 
         # Bottom section - Events and Controls
         events_col, controls_col = st.columns([3, 1])
-        
+
         with events_col:
             st.markdown('<div class="tile">', unsafe_allow_html=True)
             st.markdown("<h3>Events</h3>", unsafe_allow_html=True)
             st.markdown(event_card(-1000, "Break a leg"), unsafe_allow_html=True)
             st.markdown(event_card(500, "Got a bonus"), unsafe_allow_html=True)
             st.markdown(event_card(-200, "Car repair"), unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-        with controls_col:
-            st.markdown('<div class="tile">', unsafe_allow_html=True)
-            st.markdown("<h3>Controls</h3>", unsafe_allow_html=True)
-            st.button("Advance 6 months")
-            st.selectbox("Choose Event", ["Buy house", "Get dog", "Start business"])
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown('</div>', unsafe_allow_html=True)
-        
+        with controls_col:
+            advance_time, select_month = st.columns([2, 2])
+            with select_month:
+                months_to_advance = st.selectbox("Months:", range(1, 13), 1)
+            with advance_time:
+                if st.button("Advance time"):
+                    for _ in range(months_to_advance):
+                        player.advance_month()
+                    st.rerun()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
     # Footer
     st.markdown(footer(), unsafe_allow_html=True)
