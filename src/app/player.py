@@ -13,6 +13,7 @@ from src.constants.data_constants import (
 from typing import Dict
 import yfinance as yf
 import pandas as pd
+from events import Career, Property
 
 
 class Player:
@@ -53,6 +54,9 @@ class Player:
         self.happiness = 100
         self.health = 100
         self.education = 50
+        self.is_married = False
+        self.childern = 0
+        self.property = [Property]
 
     def _compute_monthly_rent_expenses(self) -> float:
         if self.current_year == STARTING_YEAR:
@@ -160,3 +164,14 @@ class Player:
             # TODO: Use real market data
             monthly_return = 0.007  # About 8.4% annually
             self.investments_value *= 1 + monthly_return
+
+    def buy_a_property(self, property: Property):
+        if self.cash >= property.price:
+            print("you have enough money to buy a property.")
+            self.cash -= property.price
+            self.property.append(property)
+        else:
+            raise Exception("Not enough money.")
+
+    def child_born(self):
+        self.childern += 1
