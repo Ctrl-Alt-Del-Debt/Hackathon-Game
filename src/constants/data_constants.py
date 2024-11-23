@@ -14,3 +14,4 @@ HEADER_NAMES_SALARIES = [
 
 FILE_PATH_SALARIES = "data/mzdy_2021_2023.xlsx" 
 FILE_PATH_INFLATION = "data/Inflace_2000-23.xlsx" 
+FILE_PATH_PROPERTY_PRICES = "ceny_nemovitosti.xlsx"
