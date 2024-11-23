@@ -1,13 +1,47 @@
 from dataclasses import dataclass
-from typing import List, Callable, Optional
+from typing import List, Callable, Optional, Any
 from src.app.player import Player
 import random
+from enum import Enum
+from models import Property
+from pydantic import BaseModel
+
+class SpendingCategory(Enum):
+    EDUCATION = "education"
+    WEDDING = "wedding"
+    CERTIFICATION = "certification"
+    PROPERTY_PURCHASE = "property_purchase"
+
+
+class EventCategory(Enum):
+    MARKET = "market"
+    LIFE = "life"
+    CAREER= "career"
+    EDUCATION = "education"
+
+class Career(Enum):
+    EMPLOYEE = "Employmee"
+    ENTREPRENEUR = "Entrepreneur"
+    UNEMPLOYED = "nemployed"
+    STUDENT = "Student"
+
+
+class PropertyCategory(Enum):
+    HOUSE = "House"
+    APPARTMENT = "Appartment"
+    COTTAGE = "Cottage"
+
+
+class Property(BaseModel):
+    name: str
+    price: float
+    category: PropertyCategory
 
 
 @dataclass
 class EventOption:
     description: str
-    execute: Callable[[Player], None]
+    execute: Callable[[Player], Any]
     requirements: Optional[Callable[[Player], bool]] = None
 
 
@@ -39,14 +73,13 @@ def create_life_events() -> List[Event]:
                         player.spend_money(20000, "wedding"),
                         setattr(player, "is_married", True),
                         setattr(player, "happiness", min(100, player.happiness + 20)),
-                        None,
-                    )[-1],
+                    ),
                     lambda player: player.cash >= 20000
                     and not getattr(player, "is_married", False),
                 ),
                 EventOption("Stay single", lambda player: None),
             ],
-            "life",
+            EventCategory.LIFE,
         ),
         Event(
             "Real Estate Investment",
@@ -57,13 +90,12 @@ def create_life_events() -> List[Event]:
                     lambda player: (
                         player.buy_property(300000, 0.2),
                         setattr(player, "happiness", min(100, player.happiness + 10)),
-                        None,
-                    )[-1],
+                    ),
                     lambda player: player.cash >= 60000,
                 ),
                 EventOption("Continue renting", lambda player: None),
             ],
-            "market",
+            EventCategory.MARKET,
         ),
         Event(
             "Career Development",
@@ -75,13 +107,12 @@ def create_life_events() -> List[Event]:
                         player.spend_money(5000, "education"),
                         player.change_job(1.4),
                         setattr(player, "education", min(100, player.education + 15)),
-                        None,
-                    )[-1],
+                    ),
                     lambda player: player.cash >= 5000,
                 ),
                 EventOption("Stay in current position", lambda player: None),
             ],
-            "career",
+            EventCategory.CAREER,
         ),
         Event(
             "Market Crash",
@@ -92,12 +123,77 @@ def create_life_events() -> List[Event]:
                 ),
                 EventOption(
                     "Buy the dip (-$10,000)",
-                    lambda player: (player.invest(10000), None)[-1],
+                    lambda player: (player.invest(10000)),
                     lambda player: player.cash >= 10000,
                 ),
                 EventOption("Hold and wait", lambda player: None),
             ],
-            "market",
+         EventCategory.MARKET,
+        ),
+        Event(
+            "Job loss",
+            "You were fired.",
+            [
+                EventOption (
+                    "Apply for a new job, earning will be increased by 10%. You need to get a new certificate for 1000usd.", 
+                    lambda player: (
+                        player.change_job(1.1),
+                        player.spend_money(300, SpendingCategory.CERTIFICATION),
+                        setattr(player, "happiness", max(0, player.happiness - 25)),
+                    ),
+                    lambda player: (player.cash > 300)
+                ),
+                EventOption(
+                    "Be unemployed",
+                        lambda player: (
+                        player.change_job(0.4),
+                        setattr(player, "happiness", max(0, player.happiness - 60))
+                ),
+                lambda player: (player.monthly_income > 0)
+                )
+            ],
+            EventCategory.CAREER,
+        ),
+        Event(
+            "Job loss",
+            "You were fired.",
+            [
+                EventOption (
+                    "Apply for a new job, earning will be increased by 10%. You need to get a new certificate for 1000usd.", 
+                    lambda player: (
+                        player.change_job(1.1),
+                        player.spend_money(300, SpendingCategory.CERTIFICATION),
+                        setattr(player, "happiness", max(0, player.happiness - 25)),
+                    ),
+                    lambda player: (player.cash > 300)
+                ),
+                EventOption(
+                    "Be unemployed",
+                        lambda player: (
+                        player.change_job(0.4),
+                        setattr(player, "happiness", max(0, player.happiness - 60))
+                ),
+                lambda player: (player.monthly_income > 0)
+                )
+            ],
+            EventCategory.CAREER,
+        ),
+        Event(
+            "Buy a house",
+            "You need to spend 5000000 CZK.",
+            [
+                EventOption (
+                    "Buy a new house. Spending 5000000 CZK", 
+                    lambda player: (
+                        player.buy_a_house(Property(name="family house", price=5000000, category=PropertyCategory.HOUSE)),
+                        player.spend_money(5000000, SpendingCategory.PROPERTY_PURCHASE),
+                        setattr(player, "happiness", min(100, player.happiness + 25)),
+                    ),
+                    lambda player: (player.cash > 5000000)
+                ),
+                EventOption("Do not buy any house", lambda player: None),
+            ],
+            EventCategory.LIFE,
         ),
     ]
     return events
