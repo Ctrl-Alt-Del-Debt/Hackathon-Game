@@ -1,9 +1,14 @@
 from app.salaries_data_preprocessing import MzdyData
 from src.constants.data_constants import (
-    FILE_PATH_SALARIES, STARTING_YEAR, CAREERS_LIST, 
-    STUDENT_INCOME, STARTING_AGE, FILE_PATH_INFLATION,
-    STARTING_RENT, STARTING_ADDITIONAL_EXPENSES
-    )
+    FILE_PATH_SALARIES,
+    STARTING_YEAR,
+    CAREERS_LIST,
+    STUDENT_INCOME,
+    STARTING_AGE,
+    FILE_PATH_INFLATION,
+    STARTING_RENT,
+    STARTING_ADDITIONAL_EXPENSES,
+)
 
 from typing import Dict
 import yfinance as yf
@@ -11,12 +16,14 @@ import pandas as pd
 
 
 class Player:
-    def __init__(self, name: str, age: int, career: str, region = "Jihomoravský kraj"):
+    def __init__(self, name: str, age: int, career: str, region="Jihomoravský kraj"):
         self.name = name
-        self.age = age
-        self.current_year = STARTING_YEAR + (self.age - STARTING_AGE)
+        self.age_in_months = age * 12
+        self.current_year = STARTING_YEAR + (self.age_in_months * 12 - STARTING_AGE)
         self.career = career
-        self.region = region  # default region is JMK but can be changed to "Hlavní město Praha"
+        self.region = (
+            region  # default region is JMK but can be changed to "Hlavní město Praha"
+        )
         self.income_data = MzdyData(FILE_PATH_SALARIES).process_adjustments()
 
         # Financial attributes
@@ -24,39 +31,59 @@ class Player:
         self.investments: Dict[str, float] = {}
         self.investments_value = 0.0
         self.real_estate_value = 0.0
-        self.monthly_income = self._initialize_income()
-        self.additional_expenses = self._compute_additional_expenses()
-        self.monthly_rent_expenses = self._compute_monthly_rent_expenses()
+        # self.monthly_income = self._initialize_income()
+        # self.additional_expenses = self._compute_additional_expenses()
+        # self.monthly_rent_expenses = self._compute_monthly_rent_expenses()
+
+        self.monthly_income = 300
+        self.additional_expenses = 200
+        self.monthly_rent_expenses = 100
 
         # Historical data
         self.salary_history = [self.monthly_income]
+        self.expenses_history = [self.additional_expenses]
+        self.rent_history = [self.monthly_rent_expenses]
         self.networth_history = [self.net_worth]
         self.cash_history = [self.cash]
+
+        # Events
+        self.events = []
 
         # Stats
         self.happiness = 100
         self.health = 100
         self.education = 50
-        self.months = 0  # Initialize month counter
 
     def _compute_monthly_rent_expenses(self) -> float:
         if self.current_year == STARTING_YEAR:
             return STARTING_RENT
         else:
             inflation_data = pd.read_excel(FILE_PATH_INFLATION)
-            inflation_data_filtered = inflation_data[inflation_data['Rok'] == self.current_year]
-            inflation_rate = inflation_data_filtered['Bydlení, voda, energie,\npaliva'].iloc[0].item()
-            return self.monthly_rent_expenses + (self.monthly_rent_expenses * inflation_rate)
+            inflation_data_filtered = inflation_data[
+                inflation_data["Rok"] == self.current_year
+            ]
+            inflation_rate = (
+                inflation_data_filtered["Bydlení, voda, energie,\npaliva"]
+                .iloc[0]
+                .item()
+            )
+            return self.monthly_rent_expenses + (
+                self.monthly_rent_expenses * inflation_rate
+            )
 
     def _compute_additional_expenses(self) -> float:
         if self.current_year == STARTING_YEAR:
             return STARTING_ADDITIONAL_EXPENSES
         else:
             inflation_data = pd.read_excel(FILE_PATH_INFLATION)
-            inflation_data_filtered = inflation_data[inflation_data['Rok'] == self.current_year]
-            inflation_rate = inflation_data_filtered['Úhrn'].iloc[0].item()
-            return self.additional_expenses + (self.additional_expenses * inflation_rate)
-    
+            inflation_data_filtered = inflation_data[
+                inflation_data["Rok"] == self.current_year
+            ]
+            inflation_rate = inflation_data_filtered["Úhrn"].iloc[0].item()
+            return self.additional_expenses + (
+                self.additional_expenses * inflation_rate
+            )
+
     # TODO: hardcoded start in 20 year -> should be changed
     def _initialize_income(self) -> int:
         """
@@ -67,16 +94,18 @@ class Player:
         try:
             if self.career in CAREERS_LIST:
                 income_data_filtered = self.income_data[
-                    (self.income_data['Rok'] == str(self.current_year)) &
-                    (self.income_data['ČR, kraje'] == self.region)
+                    (self.income_data["Rok"] == str(self.current_year))
+                    & (self.income_data["ČR, kraje"] == self.region)
                 ]
                 income = income_data_filtered[self.career].iloc[0].item()
                 return int(income)
             elif self.career == "Student":
                 return int(STUDENT_INCOME)
         except:
-            print("Something went wrong during an income settings.")        # TODO: logging should be implemented instead printing
-        
+            print(
+                "Something went wrong during an income settings."
+            )  # TODO: logging should be implemented instead printing
+
     @property
     def net_worth(self) -> float:
         return self.cash + self.investments_value + self.real_estate_value
@@ -101,18 +130,17 @@ class Player:
     def change_job(self, salary_increase: float):
         self.monthly_income *= salary_increase
 
-    def advance_month(self):
+    def advance_month(self, engine):
         # Monthly income
         self.earn_money(self.monthly_income)
 
         # Monthly expenses
-        self.spend_money(self.additional_expenses + self.monthly_rent_expenses, "living_expenses")
+        self.spend_money(
+            self.additional_expenses + self.monthly_rent_expenses, "living_expenses"
+        )
 
         # Age one month
-        self.months += 1
-        if self.months >= 12:
-            self.age += 1
-            self.months = 0
+        self.age_in_months += 1
 
         # Update investments value
         self._update_investments()
@@ -121,6 +149,10 @@ class Player:
         self.salary_history.append(self.monthly_income)
         self.networth_history.append(self.net_worth)
         self.cash_history.append(self.cash)
+        self.expenses_history.append(self.additional_expenses)
+        self.rent_history.append(self.monthly_rent_expenses)
+
+        self.events.append(engine.get_current_event())
 
     def _update_investments(self):
         if self.investments_value > 0:

@@ -44,13 +44,42 @@ def show_start_screen():
             st.rerun()
 
 
-def show_financial_history(player):
+def show_financial_monthly(player: Player):
     fig = go.Figure()
     fig.add_trace(
         go.Scatter(
-            y=player.salary_history, name="Monthly Income", line=dict(color="#00875A")
+            y=player.salary_history,
+            name="Monthly Income",
+            line=dict(color="#00875A"),
         )
     )
+    fig.add_trace(
+        go.Scatter(
+            y=player.rent_history,
+            name="Current rent",
+            line=dict(color="#FF0000"),
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            y=player.expenses_history,
+            name="Monthly expenses",
+            line=dict(color="#00FF00"),
+        )
+    )
+
+    fig.update_layout(
+        title="Financial History",
+        height=300,
+        yaxis_title="Amount ($)",
+        xaxis_title="Months",
+    )
+    return fig
+
+
+def show_financial_history(player: Player):
+    fig = go.Figure()
+
     fig.add_trace(
         go.Scatter(
             y=player.networth_history, name="Net Worth", line=dict(color="#FFD700")
@@ -59,6 +88,7 @@ def show_financial_history(player):
     fig.add_trace(
         go.Scatter(y=player.cash_history, name="Cash", line=dict(color="#4682B4"))
     )
+
     fig.update_layout(
         title="Financial History",
         height=300,
@@ -69,54 +99,71 @@ def show_financial_history(player):
 
 
 def show_game_screen():
-    player = st.session_state.player
-    engine = st.session_state.game_engine
+    player: Player = st.session_state.player
+    engine: GameEngine = st.session_state.game_engine
 
-    # Player stats
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
-    with col1:
-        st.metric("Age", f"{player.age} years")
-    with col2:
-        st.metric("Cash", f"${player.cash:,.2f}")
-    with col3:
-        st.metric("Net Worth", f"${player.net_worth:,.2f}")
+    main_bar, sidebar = st.columns([4, 1])
 
-    # Player well-being stats
-    st.markdown("### 🎯 Personal Development Stats")
+    with main_bar:
+        col1, col2, col3 = st.columns([1, 1, 1])
 
-    # Happiness
-    st.markdown("##### Happiness")
-    st.caption("Affected by financial decisions and life events")
-    st.progress(player.happiness / 100)
-    st.write(f"{player.happiness}%")
+        with col1:
+            st.plotly_chart(show_financial_dashboard(player), use_container_width=True)
+        with col2:
+            st.plotly_chart(show_financial_history(player), use_container_width=True)
+        with col3:
+            st.plotly_chart(show_financial_monthly(player), use_container_width=True)
 
-    # Health
-    st.markdown("##### Health")
-    st.caption("Impacted by lifestyle choices and stress management")
-    st.progress(player.health / 100)
-    st.write(f"{player.health}%")
+        show_events(engine, player)
 
-    # Education
-    st.markdown("##### Education")
-    st.caption("Represents knowledge and skills development")
-    st.progress(player.education / 100)
-    st.write(f"{player.education}%")
+    with sidebar:
+        st.markdown("##### Age")
+        st.caption("Affected by the immortal passage of time")
+        st.progress(player.age_in_months / 12 / 100)
+        st.write(f"{round(player.age_in_months / 12, 2)} years")
+        # Happiness
+        st.markdown("##### Happiness")
+        st.caption("Affected by financial decisions and life events")
+        st.progress(player.happiness / 100)
+        st.write(f"{player.happiness}%")
 
-    # Financial Dashboard
-    st.subheader("Financial Overview")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.plotly_chart(show_financial_dashboard(player), use_container_width=True)
-    with col2:
-        st.plotly_chart(show_financial_history(player), use_container_width=True)
+        # Health
+        st.markdown("##### Health")
+        st.caption("Impacted by lifestyle choices and stress management")
+        st.progress(player.health / 100)
+        st.write(f"{player.health}%")
 
-    # Events and Decisions
-    st.subheader("Current Events")
-    handle_events(engine, player)
+        # Education
+        st.markdown("##### Education")
+        st.caption("Represents knowledge and skills development, helps with jobs")
+        st.progress(player.education / 100)
+        st.write(f"{player.education}")
 
-    # Actions
-    st.subheader("Available Actions")
-    show_actions(player)
+        st.markdown("##")
+
+        col21, col22 = st.columns(2)
+        months_to_advance = 1
+        with col22:
+            months_to_advance = st.selectbox(
+                "", [1, 2, 4, 6, 8, 12, 24], 1, label_visibility="collapsed"
+            )
+        with col21:
+            if st.button("Advance months", type="primary", use_container_width=True):
+                for _ in range(months_to_advance):
+                    player.advance_month(engine)
+                st.rerun()
+
+
+def stats_card(title, stats):
+    st.markdown(
+        f"""
+        <div class="stat-card">
+            <h3 style='font-size: 1.1rem; font-weight: 600; margin-bottom: 0.8rem;'>{title}</h3>
+            {''.join([f"<div style='margin: 0.5rem 0;'>{k}: {v}</div>" for k, v in stats.items()])}
+        </div>
+    """,
+        unsafe_allow_html=True,
+    )
 
 
 def show_financial_dashboard(player):
@@ -133,11 +180,12 @@ def show_financial_dashboard(player):
     return fig  # Return the figure instead of displaying it
 
 
-def handle_events(engine, player):
-    current_event = engine.get_current_event()
-    if current_event:
-        st.info(current_event.description)
-        for option in current_event.options:
+def show_events(engine, player):
+    for event in player.events:
+        if event is None:
+            continue
+        st.info(event.description)
+        for option in event.options:
             if st.button(option.description):
                 option.execute(player)
                 st.rerun()
@@ -154,11 +202,6 @@ def show_actions(player):
             if st.button("Confirm Investment"):
                 player.invest(amount)
                 st.rerun()
-
-    with col2:
-        if st.button("Next Month"):
-            player.advance_month()
-            st.rerun()
 
 
 if __name__ == "__main__":
