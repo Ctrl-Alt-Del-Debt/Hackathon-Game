@@ -34,7 +34,7 @@ def show_start_screen():
 
     with st.form("player_creation"):
         name = st.text_input("Your Name")
-        age = st.slider("Starting Age", 18, 30, 20)
+        age = st.slider("Starting Age", 12, 50, 20)
         career = st.selectbox("Initial Career", ["Student", "Employee", "Entrepreneur"])
 
         if st.form_submit_button("Start Your Journey"):
@@ -42,12 +42,36 @@ def show_start_screen():
             st.rerun()
 
 
+def show_financial_history(player):
+    fig = go.Figure()
+    fig.add_trace(
+        go.Scatter(
+            y=player.salary_history, name="Monthly Income", line=dict(color="#00875A")
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            y=player.networth_history, name="Net Worth", line=dict(color="#FFD700")
+        )
+    )
+    fig.add_trace(
+        go.Scatter(y=player.cash_history, name="Cash", line=dict(color="#4682B4"))
+    )
+    fig.update_layout(
+        title="Financial History",
+        height=300,
+        yaxis_title="Amount ($)",
+        xaxis_title="Months",
+    )
+    return fig
+
+
 def show_game_screen():
     player = st.session_state.player
     engine = st.session_state.game_engine
 
     # Player stats
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
         st.metric("Age", f"{player.age} years")
     with col2:
@@ -55,9 +79,34 @@ def show_game_screen():
     with col3:
         st.metric("Net Worth", f"${player.net_worth:,.2f}")
 
+    # Player well-being stats
+    st.markdown("### 🎯 Personal Development Stats")
+
+    # Happiness
+    st.markdown("##### Happiness")
+    st.caption("Affected by financial decisions and life events")
+    st.progress(player.happiness / 100)
+    st.write(f"{player.happiness}%")
+
+    # Health
+    st.markdown("##### Health")
+    st.caption("Impacted by lifestyle choices and stress management")
+    st.progress(player.health / 100)
+    st.write(f"{player.health}%")
+
+    # Education
+    st.markdown("##### Education")
+    st.caption("Represents knowledge and skills development")
+    st.progress(player.education / 100)
+    st.write(f"{player.education}%")
+
     # Financial Dashboard
     st.subheader("Financial Overview")
-    show_financial_dashboard(player)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.plotly_chart(show_financial_dashboard(player), use_container_width=True)
+    with col2:
+        st.plotly_chart(show_financial_history(player), use_container_width=True)
 
     # Events and Decisions
     st.subheader("Current Events")
@@ -79,7 +128,7 @@ def show_financial_dashboard(player):
         )
     )
     fig.update_layout(height=300)
-    st.plotly_chart(fig, use_container_width=True)
+    return fig  # Return the figure instead of displaying it
 
 
 def handle_events(engine, player):
