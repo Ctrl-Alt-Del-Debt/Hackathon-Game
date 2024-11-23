@@ -13,14 +13,14 @@ if "game_engine" not in st.session_state:
 if "player" not in st.session_state:
     st.session_state.player = None
 
+st.set_page_config(page_title="FinSim", page_icon="💰", layout="wide")
+
 
 def main():
-    set_page_config()
-
     if st.session_state.player is None:
         show_start_screen()
     else:
-        show_game_ui()
+        show_game_screen()
 
 
 def show_start_screen():
@@ -74,15 +74,30 @@ def show_start_screen():
         st.markdown("## Settings")
         st.markdown("Create your player profile to start your financial journey:")
 
-    with st.form("player_creation"):
-        name = st.text_input("Your Name")
-        age = st.slider("Starting Age", 12, 50, 20)
-        CAREERS_LIST.append("Student")
-        career = st.selectbox("Initial Career", CAREERS_LIST)
+        with st.form("player_creation"):
+            name = st.text_input("Your Name")
+            age = st.slider("Starting Age", 12, 50, 20)
+            career = st.selectbox(
+                "Initial Career", ["Student", "Employee", "Entrepreneur"]
+            )
+            if st.form_submit_button("Start Your Journey"):
+                st.session_state.player = Player(name, age, career)
+                st.rerun()
 
-        if st.form_submit_button("Start Your Journey"):
-            st.session_state.player = Player(name, age, career)
-            st.rerun()
+    # Right Column: Welcome Message
+    with col2:
+        # Using the new right-column class for vertical centering
+        st.markdown(
+            """
+            <div class="right-column center-text">
+                <h1 class="finsim-title">FinSim</h1>
+                <p class="finsim-tagline">
+                    Test your financial skills in a safe, simulated environment.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def show_financial_monthly(player: Player):
@@ -143,6 +158,7 @@ def show_game_screen():
     player: Player = st.session_state.player
     engine: GameEngine = st.session_state.game_engine
 
+    st.title("FinSim 💰")
     main_bar, sidebar = st.columns([4, 1])
 
     with main_bar:
