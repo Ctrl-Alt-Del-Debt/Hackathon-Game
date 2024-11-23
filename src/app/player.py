@@ -6,7 +6,7 @@ import pandas as pd
 class Player:
     def __init__(self, name: str, age: int, career: str):
         self.name = name
-        self.age = age
+        self.age_in_months = age * 12
         self.career = career
 
         # Financial attributes
@@ -26,7 +26,6 @@ class Player:
         self.happiness = 100
         self.health = 100
         self.education = 50
-        self.months = 0  # Initialize month counter
 
     # TODO: use real data, make it more realistic... enterpreneur should have more variable income, even negative. Employee should be based on type of job
     def _initialize_income(self) -> float:
@@ -68,11 +67,7 @@ class Player:
         # Monthly expenses
         self.spend_money(self.monthly_expenses, "living_expenses")
 
-        # Age one month
-        self.months += 1
-        if self.months >= 12:
-            self.age += 1
-            self.months = 0
+        self.age_in_months += 1
 
         # Update investments value
         self._update_investments()
