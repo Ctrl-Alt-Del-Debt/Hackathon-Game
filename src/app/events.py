@@ -11,6 +11,7 @@ class SpendingCategory(Enum):
     WEDDING = "wedding"
     CERTIFICATION = "certification"
     PROPERTY_PURCHASE = "property_purchase"
+    FAMILY = "family"
 
 
 class EventCategory(Enum):
@@ -30,6 +31,7 @@ class PropertyCategory(Enum):
     HOUSE = "House"
     APPARTMENT = "Appartment"
     COTTAGE = "Cottage"
+    CAR = "car"
 
 
 class Property(BaseModel):
@@ -185,13 +187,46 @@ def create_life_events() -> List[Event]:
                 EventOption (
                     "Buy a new house. Spending 5000000 CZK", 
                     lambda player: (
-                        player.buy_a_house(Property(name="family house", price=5000000, category=PropertyCategory.HOUSE)),
+                        player.buy_a_property(Property(name="family house", price=5000000, category=PropertyCategory.HOUSE)),
                         player.spend_money(5000000, SpendingCategory.PROPERTY_PURCHASE),
                         setattr(player, "happiness", min(100, player.happiness + 25)),
                     ),
                     lambda player: (player.cash > 5000000)
                 ),
                 EventOption("Do not buy any house", lambda player: None),
+            ],
+            EventCategory.LIFE,
+        ),
+        Event(
+            "Buy a Car",
+            "You need to spend 500000 CZK.",
+            [
+                EventOption (
+                    "Buy a new car. Spending 500000 CZK", 
+                    lambda player: (
+                        player.buy_a_property(Property(name="family car", price=500000, category=PropertyCategory.CAR)),
+                        player.spend_money(500000, SpendingCategory.PROPERTY_PURCHASE),
+                        setattr(player, "happiness", min(100, player.happiness + 15)),
+                    ),
+                    lambda player: (player.cash > 500000)
+                ),
+                EventOption("Do not buy any car", lambda player: None),
+            ],
+            EventCategory.LIFE,
+        ),
+        Event(
+            "Have a child",
+            "Your wife is pregnant, your child will be born in 7 months.",
+            [
+                EventOption (
+                    "Accept new family situation.", 
+                    lambda player: (
+                        player.spend_money(10000, SpendingCategory.FAMILY),
+                        player.child_born
+                    ),
+                    None
+                ),
+                EventOption("Poor Man, there is no other option!", lambda player: None),
             ],
             EventCategory.LIFE,
         ),
