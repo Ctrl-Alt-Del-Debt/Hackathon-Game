@@ -15,7 +15,12 @@ class Player:
         self.investments_value = 0.0
         self.real_estate_value = 0.0
         self.monthly_income = self._initialize_income()
-        self.monthly_expenses = 2000.0
+        self.monthly_expenses = 2000.0  # TODO: Use real data based on inflation
+
+        # Historical data
+        self.salary_history = [self.monthly_income]
+        self.networth_history = [self.net_worth]
+        self.cash_history = [self.cash]
 
         # Stats
         self.happiness = 100
@@ -23,6 +28,7 @@ class Player:
         self.education = 50
         self.months = 0  # Initialize month counter
 
+    # TODO: use real data, make it more realistic... enterpreneur should have more variable income, even negative. Employee should be based on type of job
     def _initialize_income(self) -> float:
         if self.career == "Student":
             return 1500.0
@@ -71,8 +77,14 @@ class Player:
         # Update investments value
         self._update_investments()
 
+        # Update historical data
+        self.salary_history.append(self.monthly_income)
+        self.networth_history.append(self.net_worth)
+        self.cash_history.append(self.cash)
+
     def _update_investments(self):
         if self.investments_value > 0:
             # Simulate average market return
+            # TODO: Use real market data
             monthly_return = 0.007  # About 8.4% annually
             self.investments_value *= 1 + monthly_return
