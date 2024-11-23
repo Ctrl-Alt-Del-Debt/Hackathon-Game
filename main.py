@@ -1,12 +1,12 @@
 import streamlit as st
 import pandas as pd
 import yfinance as yf
+from src.frontend.pages.landing import show_landing
 from src.app.game_engine import GameEngine
 from src.app.player import Player
+from src.frontend.ui import show_game_ui
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
-
-st.set_page_config(page_title="Financial Life Simulator", page_icon="💰", layout="wide")
 
 # Initialize session state
 if "game_engine" not in st.session_state:
@@ -15,13 +15,25 @@ if "player" not in st.session_state:
     st.session_state.player = None
 
 
-def main():
-    st.title("Financial Life Simulator 💰")
 
-    if st.session_state.player is None:
-        show_start_screen()
+# def main():
+#     st.title("Financial Life Simulator 💰")
+
+#     if st.session_state.player is None:
+#         show_start_screen()
+#     else:
+#         show_game_screen()
+
+
+def main():
+    if 'page' not in st.session_state:
+        st.session_state.page = "landing"
+    
+# Show appropriate page
+    if st.session_state.page == "landing":
+        show_landing()
     else:
-        show_game_screen()
+        show_game_ui()
 
 
 def show_start_screen():

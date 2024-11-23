@@ -24,8 +24,12 @@ python3 -m pip install -e .
 ```powershell
 python -m venv env
 .\env\Scripts\activate
-python -m pip install -e .
-```
+def main():
+    set_page_config()
+    show_game_ui()
+
+if __name__ == "__main__":
+    main()```
 
 ### VS Code settings
 
