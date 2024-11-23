@@ -78,7 +78,7 @@ def show_game_screen():
     # Player stats
     col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
-        st.metric("Age", f"{player.age} years")
+        st.metric("Age", f"{player.age_in_months / 12} years")
     with col2:
         st.metric("Cash", f"${player.cash:,.2f}")
     with col3:
@@ -159,9 +159,15 @@ def show_actions(player):
                 st.rerun()
 
     with col2:
-        if st.button("Next Month"):
-            player.advance_month()
-            st.rerun()
+        col21, col22 = st.columns(2)
+        months_to_advance = 1
+        with col22:
+            months_to_advance = st.selectbox("Months to advance:", range(1, 13), 1)
+        with col21:
+            if st.button("Next Month"):
+                for _ in range(months_to_advance):
+                    player.advance_month()
+                st.rerun()
 
 
 if __name__ == "__main__":
