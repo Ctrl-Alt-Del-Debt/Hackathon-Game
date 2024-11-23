@@ -14,8 +14,9 @@ def create_line_chart(data):
         )
     )
     fig.update_layout(
+        title="Financial Trend",
         height=150,
-        margin=dict(l=0, r=0, t=0, b=0),
+        margin=dict(l=0, r=0, t=30, b=0),
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
@@ -35,8 +36,9 @@ def create_pie_chart(data):
         )
     )
     fig.update_layout(
+        title="Portfolio Distribution",
         height=150,
-        margin=dict(l=0, r=0, t=0, b=0),
+        margin=dict(l=0, r=0, t=30, b=0),
         paper_bgcolor='rgba(0,0,0,0)',
         showlegend=False
     )
@@ -57,7 +59,7 @@ def create_progress_bar(value, max_value, label):
 def stats_card(title, stats):
     progress_bars = ""
     education_levels = {"No Education": 0, "High School": 25, "Bachelor's": 50, "Master's": 75, "PhD": 100}
-    
+
     for k, v in stats.items():
         if k == "Age":
             progress_bars += create_progress_bar(int(v), 99, "Age")
@@ -66,7 +68,7 @@ def stats_card(title, stats):
             progress_bars += create_progress_bar(edu_value, 100, "Education")
         else:
             progress_bars += create_progress_bar(int(v.strip('%')), 100, k)
-    
+
     return f"""
         <div class="tile stats-card">
             <h3>{title}</h3>
@@ -86,7 +88,7 @@ def event_card(amount, description):
 def header():
     return """
         <div class="header tile">
-            <h1>Financial Life Simulator</h1>
+            <h1>FinSim</h1>
             <p>Your learning tool for understanding financial decisions.</p>
         </div>
     """

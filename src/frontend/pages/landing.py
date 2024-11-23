@@ -16,21 +16,21 @@ def show_landing():
                 text-align: center;
                 padding: 2rem;
             }
-            
+
             .main-title {
                 font-size: 4rem;
                 font-weight: bold;
                 margin-bottom: 2rem;
                 color: #2D3748;
             }
-            
+
             .subtitle {
                 font-size: 1.5rem;
                 color: #4A5568;
                 margin-bottom: 3rem;
                 max-width: 600px;
             }
-            
+
             .start-button {
                 background-color: #4299E1;
                 color: white;
@@ -42,16 +42,16 @@ def show_landing():
                 border: none;
                 margin-bottom: 2rem;
             }
-            
+
             .start-button:hover {
                 background-color: #3182CE;
             }
-            
+
             .small-text {
                 font-size: 0.9rem;
                 color: #718096;
             }
-            
+
             .footer {
                 position: fixed;
                 bottom: 0;
@@ -62,18 +62,18 @@ def show_landing():
                 border-top: 1px solid #E2E8F0;
             }
         </style>
-        
+
         <div class="landing-container">
             <h1 class="main-title">FinSim</h1>
             <p class="subtitle">Make smart financial decisions and build your wealth. Learn through simulation, grow through experience.</p>
             <button class="start-button" onclick="handleStartClick()">Start Your Journey</button>
             <p class="small-text">Experience the power of financial decision-making in a risk-free environment</p>
         </div>
-        
+
         <div class="footer">
             © 2024 Financial Life Simulator | Created with ❤️ at the KBC + Engeto Hackathon
         </div>
-        
+
         <script>
             function handleStartClick() {
                 window.location.href = "?page=simulation";

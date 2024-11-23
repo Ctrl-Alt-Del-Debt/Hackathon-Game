@@ -26,18 +26,18 @@ def inject_custom_css():
                 margin-bottom: 15px;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
-            
+
             .main-container {
                 background: white;
                 border-radius: 20px;
                 padding: 30px;
                 margin: 20px;
             }
-            
+
             .progress-container {
                 margin: 15px 0;
             }
-            
+
             .progress-bar {
                 width: 100%;
                 height: 10px;
@@ -45,57 +45,57 @@ def inject_custom_css():
                 border-radius: 5px;
                 overflow: hidden;
             }
-            
+
             .progress-fill {
                 height: 100%;
                 background: #4299E1;
                 transition: width 0.3s ease;
             }
-            
+
             .progress-label {
                 font-size: 14px;
                 margin-bottom: 5px;
             }
-            
+
             .progress-value {
                 font-size: 12px;
                 color: #666;
                 margin-top: 3px;
             }
-            
+
             .event-card {
                 background: none;
                 box-shadow: none;
                 border: 1px solid #e1e1e1;
             }
-            
+
             .amount {
                 font-size: 18px;
                 font-weight: bold;
             }
-            
+
             .amount.positive { color: #48BB78; }
             .amount.negative { color: #F56565; }
-            
+
             .description {
                 margin: 5px 0 0 0;
                 color: #4A5568;
             }
-            
+
             .header {
                 text-align: center;
                 margin-bottom: 2rem;
             }
-            
+
             .header h1 {
                 color: #2D3748;
                 margin-bottom: 0.5rem;
             }
-            
+
             .header p {
                 color: #4A5568;
             }
-            
+
             footer {
                 text-align: center;
                 padding: 20px;
@@ -178,19 +178,19 @@ def show_game_ui(player: Player):
             st.markdown(event_card(-1000, "Break a leg"), unsafe_allow_html=True)
             st.markdown(event_card(500, "Got a bonus"), unsafe_allow_html=True)
             st.markdown(event_card(-200, "Car repair"), unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
         with controls_col:
-            advance_time, select_month = st.columns([2, 2])
-            with select_month:
-                months_to_advance = st.selectbox("Months:", range(1, 13), 1)
-            with advance_time:
-                if st.button("Advance time"):
-                    for _ in range(months_to_advance):
-                        player.advance_month()
-                    st.rerun()
+            st.markdown('<div class="tile">', unsafe_allow_html=True)
+            st.markdown("<h3>Controls</h3>", unsafe_allow_html=True)
+            months = st.selectbox("Advance Months", [1, 2, 3, 4, 6, 8, 12])
+            if st.button("Next Month"):
+                player.advance_month()
+                st.rerun()
+            st.selectbox("Choose Event", ["Buy house", "Get dog", "Start business"])
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # Footer
     st.markdown(footer(), unsafe_allow_html=True)
